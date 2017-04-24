@@ -1,15 +1,4 @@
-﻿#region Header
-
-// ----------------------------------------------------------------------------------------------
-// (c) Jonas Ströbele
-// 
-// IssueExample   LogList.xaml.cs
-// creation date: 24.04.2017  20:50
-// ----------------------------------------------------------------------------------------------
-
-#endregion
-
-namespace IssueExample
+﻿namespace IssueExample
 {
     /// <summary>
     /// Interaction logic for LogList.xaml

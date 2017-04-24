@@ -1,0 +1,157 @@
+﻿<controls:MetroWindow x:Class="IssueExample.ExampleLogWindow"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+                      mc:Ignorable="d"
+             ShowTitleBar="False"
+             ResizeMode="NoResize"
+             ShowCloseButton="True"
+             WindowStyle="None"
+             IsCloseButtonEnabled="{Binding Complete, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}"                      
+             WindowStartupLocation="CenterScreen"
+             MinHeight="250" MinWidth="500"
+             Background="#1e1e1e"
+             MaxHeight="500" MaxWidth="500"
+             d:DesignHeight="500" d:DesignWidth="450" Closing="metroWindowClosing">
+    <controls:MetroWindow.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- MahApps.Metro resource dictionaries. Make sure that all file names are Case Sensitive! -->
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml" />
+                <!-- Accent and AppTheme setting -->
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseDark.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <CollectionViewSource x:Key="ErrorsGrouping" Source="{Binding Path=Errors}">
+                <CollectionViewSource.GroupDescriptions>
+                    <PropertyGroupDescription PropertyName="Source"/>
+                </CollectionViewSource.GroupDescriptions>
+            </CollectionViewSource>
+            <CollectionViewSource x:Key="WarningsGrouping" Source="{Binding Path=Warnings}">
+                <CollectionViewSource.GroupDescriptions>
+                    <PropertyGroupDescription PropertyName="Source"/>
+                </CollectionViewSource.GroupDescriptions>
+            </CollectionViewSource>
+            <ItemsPanelTemplate x:Key="AlertsPanelTemplate">
+                <StackPanel Orientation="Vertical" />
+            </ItemsPanelTemplate>
+            <DataTemplate x:Key="GroupingHeader">
+                <TextBlock Text="{Binding Path=Name}" FontSize="7pt" />
+            </DataTemplate>
+            <DataTemplate x:Key="AlertTemplate">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" MinWidth="25" />
+                        <ColumnDefinition Width="Auto" MinWidth="25" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Label Grid.Column="0" Grid.Row="0" Content="{Binding Path=ShortText}" VerticalAlignment="Center" HorizontalAlignment="Left" />
+                    <Button x:Name="DetailInformationButton" Grid.Column="1" Grid.Row="0"  Style="{DynamicResource SquareButtonStyle}" VerticalAlignment="Center"
+                            Tag="{Binding Path=UniqueId}"
+                            BorderThickness="0 0 0 0" BorderBrush="Transparent" HorizontalAlignment="Center" Foreground="#22A7F0" Click="detailInformationButtonClick">
+                        <iconPacks:PackIconModern VerticalAlignment="Center" HorizontalAlignment="Center" Name="ClipboardIcon" Kind="ClipboardPaste" Width="20" Height="20"/>
+                    </Button>
+                </Grid>
+            </DataTemplate>
+        </ResourceDictionary>
+    </controls:MetroWindow.Resources>
+    <controls:MetroWindow.Flyouts>
+        <controls:FlyoutsControl>
+            <controls:Flyout x:Name="Notifications" Header="Notifications" Position="Right" Width="400" Theme="Adapt">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Orientation="Vertical">
+                        <Expander Header="Errors" IsExpanded="True" Name="ErrorsExpander">
+                            <ItemsControl ItemsSource="{Binding Source={StaticResource ErrorsGrouping}}"
+                                          ItemTemplate="{StaticResource AlertTemplate}"
+                                          ItemsPanel="{StaticResource AlertsPanelTemplate}">
+                                <ItemsControl.GroupStyle>
+                                    <GroupStyle HeaderTemplate="{StaticResource GroupingHeader}" />
+                                </ItemsControl.GroupStyle>
+                            </ItemsControl>
+                        </Expander>
+                        <Expander Header="Warnings" IsExpanded="False" Name="WarningsExpander">
+                            <ItemsControl ItemsSource="{Binding Source={StaticResource WarningsGrouping}}"
+                                          ItemTemplate="{StaticResource AlertTemplate}"
+                                          ItemsPanel="{StaticResource AlertsPanelTemplate}">
+                                <ItemsControl.GroupStyle>
+                                    <GroupStyle HeaderTemplate="{StaticResource GroupingHeader}" />
+                                </ItemsControl.GroupStyle>
+                            </ItemsControl>
+                        </Expander>
+                    </StackPanel>
+                </ScrollViewer>
+            </controls:Flyout>
+        </controls:FlyoutsControl>
+    </controls:MetroWindow.Flyouts>
+    <Grid Margin="10 30 10 10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" MinWidth="110" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <controls:MetroProgressBar Name="Progress" Grid.Row="0" Grid.Column="0" Margin="5" Minimum="0" Maximum="100" Height="6" Background="#204d6d" 
+                                   IsIndeterminate="{Binding IsIndeterminate, UpdateSourceTrigger=PropertyChanged}" 
+                                   Value="{Binding ProgressValue, UpdateSourceTrigger=PropertyChanged}"
+                                   Foreground="{Binding ProgressBarColor, UpdateSourceTrigger=PropertyChanged}"/>
+        <Grid Grid.Row="1" Grid.Column="0" MinHeight="26" Margin="0 0 5 0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MinWidth="100" />
+                <ColumnDefinition Width="Auto" MinWidth="25" />
+                <ColumnDefinition Width="Auto" MinWidth="25" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Label Grid.Column="0" Grid.Row="0" Name="StatusLabel" Content="{Binding StatusMessage}" FontSize="14" VerticalAlignment="Center" Width="Auto"/>
+            <controls:Badged Grid.Column="{Binding WarningIconPosition, FallbackValue=1}" Grid.Row="0" Badge="{Binding WarningCount}" Visibility="{Binding WarningVisible}" Margin="0 0 10 0">
+                <Button Style="{DynamicResource SquareButtonStyle}" VerticalAlignment="Center" BorderThickness="0 0 0 0" BorderBrush="Transparent" HorizontalAlignment="Center" Foreground="#22A7F0" Click="FlyoutButtonClick" >
+                    <iconPacks:PackIconMaterial VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                Name="WarningIcon" Kind="LightbulbOn" Width="20" Height="20"/>
+                </Button>
+            </controls:Badged>
+            <controls:Badged Grid.Column="2" Grid.Row="0" Badge="{Binding AlertCount}" Visibility="{Binding AlertVisible}">
+                <Button Style="{DynamicResource SquareButtonStyle}" BorderThickness="0 0 0 0" BorderBrush="Transparent" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="#FFB61E" Click="FlyoutButtonClick" >
+                    <iconPacks:PackIconMaterial VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                Name="AlertIcon" Kind="Alert" Width="20" Height="20"/>
+                </Button>
+            </controls:Badged>
+        </Grid>
+        <controls:TransitioningContentControl x:Name="TransitioningContent" Grid.Column="0" Grid.Row="2" Transition="Right" />
+        <Grid Grid.Row="3" Grid.Column="0" MinHeight="30">
+            <Grid.Resources>
+                <ResourceDictionary>
+                    <ResourceDictionary.MergedDictionaries>
+                        <!-- Flat buttons -->
+                        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/FlatButton.xaml" />
+                    </ResourceDictionary.MergedDictionaries>
+                </ResourceDictionary>
+            </Grid.Resources>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Button Name="OkButton" Grid.Row="0" Grid.Column="0" Content="Ok" IsEnabled="True" Width="100"
+                    Visibility="{Binding OkButtonVisible}" HorizontalAlignment="Right" VerticalAlignment="Top" Click="okButtonClick"/>
+            <Button Name="CancelButton" Grid.Row="0" Grid.Column="1" Margin="20 0 0 0" Content="Cancel" IsEnabled="True" Width="100"
+                    Visibility="{Binding CancelButtonVisible}" HorizontalAlignment="Left" VerticalAlignment="Top" Click="cancelButtonClick"/>
+            <Button Name="CloseButton" Grid.Row="0" Grid.Column="2" Content="Close" Width="100" 
+                    IsEnabled="{Binding Complete, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding CloseButtonVisible}"
+                    HorizontalAlignment="Right" VerticalAlignment="Top" Click="CloseButtonClick" />
+        </Grid>
+    </Grid>
+    </controls:MetroWindow>
